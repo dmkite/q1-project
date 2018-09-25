@@ -1,53 +1,39 @@
-function applyRaceData(user, races, subrace){
-    let {type: race, stats, speed, profs, equipment, features, languages} = races
-  
-    if(subrace){
-      race = subrace.subType
-      races.subrace = subrace
+function addRacialData(user, race){
+    let {raceType, speed, stats, profs = null, features = null, languages} = race
+    user.race = raceType
+    user.speed = speed
+    if(profs !== null){
+      for (let profType in race.profs){
+        user.profs[profType] += race.profs[profType]
+      }
     }
-  
-    
-    user.race += race
-    user.speed += speed
-    user.profs.push(profs) 
-    user.equipment.push(equipment)
-    user.features.push(features)
-  
-    addRacialStats(user,races)
-    
-    if(subrace){
-      addSubraceStats(user, subrace)
+    if(features !== null){
+      user.features.push(features)
     }
-  
+    for (let stat in stats){
+      user.stats[stat] += stats[stat]
+    }
     return user
-  
   }
   
-  function addRacialStats(user, races){
-    for (let stat in races.stats){
-      user.stats[stat] += races.stats[stat]
-    }
-  }
-  
-  function addSubraceStats(user, subrace){
-    for(let attribute in subrace){
-  
-      switch(attribute){
+  function addSubraceData(user, subrace){
+    for(let attributes in subrace){
+      switch(attributes){
         case 'subType':
+          user.race = subrace.subType
           break
         case 'stats':
-          for(let stat in subrace[attribute]){
-            console.log(stat)
-            user.stats[stat] += subrace.stats[stat]
-            console.log(user.stats)
+          for(let statName in subrace.stats){
+            user.stats[statName] += subrace.stats[statName]
           }
           break
-    
+        case 'profs':
+          for(let profType in subrace.profs){
+            user.profs[profType].push(subrace.profs[profType])
+          }
+          break
         case 'speed':
           user.speed = subrace.speed
-          break
-        case 'prof':
-          user.prof.push(subrace.prof)
           break
         case 'features':
           user.features.push(subrace.features)
@@ -59,14 +45,8 @@ function applyRaceData(user, races, subrace){
           user.HP += subrace.HP
           break
         default:
-          console.log(`You didn't account for ${attribute}`)
+          console.log(`forgot to account for ${attributes}`)
       }
     }
     return user
   }
-  
-  
-  
-  // addSubraceStats(user, hillDwarf)
-  
-//   applyRaceData(user, dwarf, hillDwarf)
