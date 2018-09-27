@@ -422,14 +422,17 @@ function createDNDCharacter(){
       userProgress.splice(userProgress.indexOf(this.firstElementChild.innerHTML), 1)
       this.removeAttribute('selected','selected')
       this.style.transform = 'scale(1)'
+      counterCompare--
       if(document.querySelector('b')){
         document.querySelector('b').remove()
       }
       return false;
     }
 
+    counterCompare++
     for(let i = 0; i < document.querySelectorAll('.card').length; i++){
       let divCard = document.querySelectorAll('.card')[i]
+      //.......................Instead of looping, maybe do query selector..................................
       if (divCard.hasAttribute('selected') ){
         if(!counterCompare){
           var counterCompare = 1
@@ -441,8 +444,31 @@ function createDNDCharacter(){
       if(counterCompare === counter){
         buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
         document.querySelector('b').innerHTML = `Please only select ${counter}`
-        return false
+        return false  
       }
+    }
+
+    select2(){
+      let counter = 1
+      if(!counterCompare){let counterCompare = 0}
+      if(this.hasAttribute('selected')){
+        this.removeAttribute('selected')
+        //style to look unselected
+        this.style.transform = 'scale(1)'
+        //remove from userProgress
+        userProgress.splice(userProgress.indexOf(this.firstElementChild.innerHTML))
+        counterCompare--
+      }
+      else{
+        //style to look "selected"
+        counterCompare++
+        this.style.transform = 'scale(.9)'
+        user.push(this.firstElementChild.innerHTML)
+        
+        if(counterCompare === counter){document.getElementById('nextButton').addEventListener('click'/*some function*/)}
+        //add event listener to fire creatDNDchar^^
+      }
+      
     }
     
     this.setAttribute('selected', 'selected')
@@ -450,6 +476,19 @@ function createDNDCharacter(){
     userProgress.push(this.firstElementChild.innerHTML)
 
     counterCompare++
+    console.log(counterCompare)
+    if(counterCompare === counter){
+      document.getElementById('nextButton').addEventListener('click', createDNDCharacter) 
+    }
+    else{
+    console.log(counterCompare)
+    console.log(userProgress)
+      document.getElementById('nextButton').addEventListener('click', function(){
+        buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
+        document.querySelector('b').innerHTML = `You still have selections to make`
+        return false
+      })
+    }
   }
 
 }
@@ -460,6 +499,7 @@ function createDNDCharacter(){
 
 //functions referenced in clickEvent should:
   //push something to userProgress 
+  //add click event to button to trigger next 
   //return createDNDCharacter function
 
 
