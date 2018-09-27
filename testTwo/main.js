@@ -1,3 +1,13 @@
+// const dragonBreathObj = require('./charObjs')
+// const races = require('./charObjs')
+// const subraces = require('./charObjs')
+// const classes = require('./charObjs')
+// const backgrounds = require('./charObjs')
+// const languagesObj = require('./charObjs')
+// const cantripObj = require('./charObjs')
+// const skillsObj = require('./charObjs')
+// console.log(races)
+
 const dragonBreathObj = {
     dragonBreath1:'abc',
     dragonBreath2: 'xyz',
@@ -292,7 +302,7 @@ const races = {
         spells:[],
         languages: ['Common', 'Orc']
     },
-     "Tiefling" : {
+     Tiefling : {
         raceType: 'Tiefling',
         desc:'description',
         dndClass: {},
@@ -346,16 +356,20 @@ const backgrounds = {
 
 const userProgress = []
 
+function wrapper(){
+let fnCt = 0
+const createEl = element => document.createElement(element)
+const getFirstEl = element => document.querySelectorAll(element)[0]
+const getXEl = (element, i) => document.querySelectorAll(element)[i]
+const appendEl = (element, element2) => element.appendChild(element2)
+
+function buildDom(get, element1, create, element2, append){
+  append(get(element1), create(element2))
+}
+
+createDNDCharacter()
+
 function createDNDCharacter(){
-  const createEl = element => document.createElement(element)
-  const getFirstEl = element => document.querySelectorAll(element)[0]
-  const getXEl = (element, i) => document.querySelectorAll(element)[i]
-  const appendEl = (element, element2) => element.appendChild(element2)
-
-  function buildDom(get, element1, create, element2, append){
-    append(get(element1), create(element2))
-  }
-
   switch(userProgress.length){
     case 0:
       //function to display characters
@@ -363,147 +377,175 @@ function createDNDCharacter(){
       break
     case 1:
       //function to display language choices
-      if(!races[userProgress[0]].choices.languages){
-        userProgress.push(null)
+      console.log('entered stage choose a language')
+      if(!races[userProgress[0]].choices || !races[userProgress[0]].choices.languages){
+        choiceNotPresent()
+      }
+      else{
+        displayX(races[userProgress[0]].choices.languages, 'languages')
       }
       break
     case 2:
+      console.log('entered stage choose a skill')
       //function to display skill choices
-      if(!races[userProgress[0]].choices.skills){
-        userProgress.push(null)
+      if(!races[userProgress[0]].choices || !races[userProgress[0]].choices.skills){
+        choiceNotPresent()
+      }
+      else{
+        displayX(races[userProgress[0]].choices.skills, 'skills')
       }
       break
     case 3:
+    console.log('entered stage choose a stat')
       //function to display stats choices
-      if(user.race !== 'Half Elf'){
-        userProgress.push(null)
+      if(userProgress[0] !== 'Half Elf'){
+        choiceNotPresent()
+      }
+      else{
+        displayX(races[userProgress[0]].choices.stats, 'stats')
       }
       break
     case 4:
+    console.log('entered stage choose dragon breah')
       //function to display weapon choices
-      if(user.race !== 'Dragonborn'){
-        userProgress.push(null)
+      if(userProgress[0] !== 'Dragonborn'){
+        choiceNotPresent()
+      }
+      else{
+        displayX(races[userProgress[0]].choices.weapons, 'weapons')
       }
     case 5:
-      if(!user.race.subrace){
-        userProgress.push(null)
+    console.log('entered stage choose a subrace')
+      if(!races[userProgress[0]].subrace){
+        choiceNotPresent()
       }
-      //function to display subraces
-      break
+      else{
+        displayX(subraces[userProgress[0]].choices.subrace, 'subrace')
+      }
     case 6:
-      if(user.race !== 'Elf'){
-        userProgress.push(null)
+      console.log('entered stage to choose a language')
+      if(userProgress[0] !== 'Elf'){
+        choiceNotPresent()
       }
-      //function to display languages 
+      else{
+        displayX(subraces[userProgress[6]].choices.languages, 'languages')
+      } 
       break
     case 7:
-      if(!user.race.subrace){
+      console.log('entered stage to choose a cantrip')
+      if(userProgress[0] !== 'Elf'){
         userProgress.push(null)
+      }
+      else{
+        console.log('spellz')
       }
       //function to display spells
       break
+    default:
+    console.log('works so far')
   }
-
-  function displayRaces(){
-    for(let i = 0; i < Object.keys(races).length; i++){
-      buildDom(getFirstEl, '#holder', createEl, 'div', appendEl)
-      let div = document.querySelectorAll('#holder div')[i]
-      div.innerHTML = `<h3>${Object.keys(races)[i]}</h3>`
-      div.classList.add('card')
-      div.appendChild(createEl('p'))
-      getXEl('p',i).innerHTML = races[Object.keys(races)[i]].desc
-      div.addEventListener('click', select)
-  }
-  }
-//+++++++++++++++++++The below code will trigger after 1 selection, need to make sure it's rleated to the number of choices given
-  function select(){
-    let counter = 1 //************************************************************Add something to detect number of choices || 1
-    if(this.hasAttribute('selected')){
-      userProgress.splice(userProgress.indexOf(this.firstElementChild.innerHTML), 1)
-      this.removeAttribute('selected','selected')
-      this.style.transform = 'scale(1)'
-      counterCompare--
-      if(document.querySelector('b')){
-        document.querySelector('b').remove()
-      }
-      return false;
-    }
-
-    counterCompare++
-    for(let i = 0; i < document.querySelectorAll('.card').length; i++){
-      let divCard = document.querySelectorAll('.card')[i]
-      //.......................Instead of looping, maybe do query selector..................................
-      if (divCard.hasAttribute('selected') ){
-        if(!counterCompare){
-          var counterCompare = 1
-        }
-        else{
-          counterCompare++
-        }
-      }
-      if(counterCompare === counter){
-        buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
-        document.querySelector('b').innerHTML = `Please only select ${counter}`
-        return false  
-      }
-    }
-
-    select2(){
-      let counter = 1
-      if(!counterCompare){let counterCompare = 0}
-      if(this.hasAttribute('selected')){
-        this.removeAttribute('selected')
-        //style to look unselected
-        this.style.transform = 'scale(1)'
-        //remove from userProgress
-        userProgress.splice(userProgress.indexOf(this.firstElementChild.innerHTML))
-        counterCompare--
-      }
-      else{
-        //style to look "selected"
-        counterCompare++
-        this.style.transform = 'scale(.9)'
-        user.push(this.firstElementChild.innerHTML)
-        
-        if(counterCompare === counter){document.getElementById('nextButton').addEventListener('click'/*some function*/)}
-        //add event listener to fire creatDNDchar^^
-      }
-      
-    }
-    
-    this.setAttribute('selected', 'selected')
-    this.style.transform = 'scale(.9)'
-    userProgress.push(this.firstElementChild.innerHTML)
-
-    counterCompare++
-    console.log(counterCompare)
-    if(counterCompare === counter){
-      document.getElementById('nextButton').addEventListener('click', createDNDCharacter) 
-    }
-    else{
-    console.log(counterCompare)
-    console.log(userProgress)
-      document.getElementById('nextButton').addEventListener('click', function(){
-        buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
-        document.querySelector('b').innerHTML = `You still have selections to make`
-        return false
-      })
-    }
-  }
-
+}//End of createDNDCharacter
+console.log(races.Elf)
+function choiceNotPresent(){
+        userProgress.push(null)
+        console.log(userProgress)
+        console.log('--no choices to make--')
+        fnCt = 1
+        document.getElementById('nextButton').addEventListener('click', createDNDCharacter)
 }
 
-// functions should: 
-  //DOM: display options
-  //Add clickEvent
+function displayRaces(){
+  for(let i = 0; i < Object.keys(races).length; i++){
+    buildDom(getFirstEl, '#holder', createEl, 'div', appendEl)
+    let div = document.querySelectorAll('#holder div')[i]
+    div.innerHTML = `<h3>${Object.keys(races)[i]}</h3>`
+    div.classList.add('card')
+    div.appendChild(createEl('p'))
+    getXEl('p',i).innerHTML = races[Object.keys(races)[i]].desc
+    div.addEventListener('click', select)
+  }
+}
 
-//functions referenced in clickEvent should:
-  //push something to userProgress 
-  //add click event to button to trigger next 
-  //return createDNDCharacter function
+function displayX(choiceArray, key){
+  document.getElementById('holder').innerHTML = ''
+  let counter = choiceArray[0]
+  let choiceList = Object.keys(choiceArray[1])
+  let userList = races[userProgress[0]][key]
+  for(let i = 0; i < userList.length; i++){
+    //in the user's race, loop through the keyword, e.g. languages, etc.
+    /*remove list  */
+    if(choiceList.includes(userList[i])){
+      choiceList.splice(choiceList.indexOf(userList[i]), 1)
+    }
+  }
+
+  choiceList.forEach(
+    (choice, i) =>{
+      buildDom(getFirstEl, '#holder', createEl, 'div', appendEl)
+      let div = document.querySelectorAll('#holder div')[i]
+      div.innerHTML = `<h3>${choice}</h3>`
+      div.classList.add('card')
+      div.appendChild(createEl('p'))
+      getXEl('p',i).innerHTML = races[userProgress[0]].choices[key][1][choice]
+      div.addEventListener('click', select)
+    }
+  )
+  
+}
+//+++++++++++++++++++The below code will trigger after 1 selection, need to make sure it's rleated to the number of choices given
+//^^^^^^to solve above, possibly user .bind()
+
+function select(){
+  let counterObj = {counter: 1}
+  if(!counterObj.counterCompare){counterObj.counterCompare = 0}
+  
+  if(this.hasAttribute('selected')){
+    this.removeAttribute('selected')
+    //style to look unselected
+    this.style.transform = 'scale(1)'
+    //remove from userProgress
+    userProgress.splice(userProgress.indexOf(this.firstElementChild.innerHTML))
+    counterObj.counterCompare -= 1
+  }
+  else{
+    //style to look "selected"
+    counterObj.counterCompare += 1
+    this.style.transform = 'scale(.9)'
+    this.setAttribute( 'selected', 'selected')
+    userProgress.push(this.firstElementChild.innerHTML)
+    if(counterObj.counterCompare === counterObj.counter){document.getElementById('nextButton').addEventListener('click', createDNDCharacter)}
+  }
+}
+
+}//End of wrapper
+wrapper()
 
 
-createDNDCharacter()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   /*
 //=====================================================================================
 
