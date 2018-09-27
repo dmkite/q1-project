@@ -1,0 +1,41 @@
+b{color:red;}
+header{
+  background-color:#333;
+  color:white;
+}
+
+nav{
+  background-color:#ddd;
+}
+
+#holder{
+  border:1px solid #333;
+}
+
+#holder div{
+ padding:10px;
+}
+
+#holder div:hover{
+  opacity:.7;
+  cursor:pointer
+}
+.flex-wrap{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-around;
+  background: #999;
+}
+
+.card{
+  border:1px solid black;
+  border-radius:10px; 
+  margin-bottom:10px;
+  background-color:white;
+  width: 30%;
+}
+
+.selected{
+    opacity: .7;
+    transform:scale(.9)
+}

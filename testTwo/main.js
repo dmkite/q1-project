@@ -344,7 +344,128 @@ const backgrounds = {
   }
 }
 
-//========================================================================================
+const userProgress = []
+
+function createDNDCharacter(){
+  const createEl = element => document.createElement(element)
+  const getFirstEl = element => document.querySelectorAll(element)[0]
+  const getXEl = (element, i) => document.querySelectorAll(element)[i]
+  const appendEl = (element, element2) => element.appendChild(element2)
+
+  function buildDom(get, element1, create, element2, append){
+    append(get(element1), create(element2))
+  }
+
+  switch(userProgress.length){
+    case 0:
+      //function to display characters
+      displayRaces()
+      break
+    case 1:
+      //function to display language choices
+      if(!races[userProgress[0]].choices.languages){
+        userProgress.push(null)
+      }
+      break
+    case 2:
+      //function to display skill choices
+      if(!races[userProgress[0]].choices.skills){
+        userProgress.push(null)
+      }
+      break
+    case 3:
+      //function to display stats choices
+      if(user.race !== 'Half Elf'){
+        userProgress.push(null)
+      }
+      break
+    case 4:
+      //function to display weapon choices
+      if(user.race !== 'Dragonborn'){
+        userProgress.push(null)
+      }
+    case 5:
+      if(!user.race.subrace){
+        userProgress.push(null)
+      }
+      //function to display subraces
+      break
+    case 6:
+      if(user.race !== 'Elf'){
+        userProgress.push(null)
+      }
+      //function to display languages 
+      break
+    case 7:
+      if(!user.race.subrace){
+        userProgress.push(null)
+      }
+      //function to display spells
+      break
+  }
+
+  function displayRaces(){
+    for(let i = 0; i < Object.keys(races).length; i++){
+      buildDom(getFirstEl, '#holder', createEl, 'div', appendEl)
+      let div = document.querySelectorAll('#holder div')[i]
+      div.innerHTML = `<h3>${Object.keys(races)[i]}</h3>`
+      div.classList.add('card')
+      div.appendChild(createEl('p'))
+      getXEl('p',i).innerHTML = races[Object.keys(races)[i]].desc
+      div.addEventListener('click', select)
+  }
+  }
+//+++++++++++++++++++The below code will trigger after 1 selection, need to make sure it's rleated to the number of choices given
+  function select(){
+    let counter = 1 //************************************************************Add something to detect number of choices || 1
+    if(this.hasAttribute('selected')){
+      userProgress.splice(userProgress.indexOf(this.firstElementChild.innerHTML), 1)
+      this.removeAttribute('selected','selected')
+      this.style.transform = 'scale(1)'
+      if(document.querySelector('b')){
+        document.querySelector('b').remove()
+      }
+      return false;
+    }
+
+    for(let i = 0; i < document.querySelectorAll('.card').length; i++){
+      let divCard = document.querySelectorAll('.card')[i]
+      if (divCard.hasAttribute('selected') ){
+        if(!counterCompare){
+          var counterCompare = 1
+        }
+        else{
+          counterCompare++
+        }
+      }
+      if(counterCompare === counter){
+        buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
+        document.querySelector('b').innerHTML = `Please only select ${counter}`
+        return false
+      }
+    }
+    
+    this.setAttribute('selected', 'selected')
+    this.style.transform = 'scale(.9)'
+    userProgress.push(this.firstElementChild.innerHTML)
+
+    counterCompare++
+  }
+
+}
+
+// functions should: 
+  //DOM: display options
+  //Add clickEvent
+
+//functions referenced in clickEvent should:
+  //push something to userProgress 
+  //return createDNDCharacter function
+
+
+createDNDCharacter()
+  /*
+//=====================================================================================
 
 function addRacialData(user, race){
   let {raceType, speed, stats, profs = null, features = null, languages} = race
@@ -480,14 +601,6 @@ let clearAndPopulateRaceChoices = function(){
     return clearAndPopulate('race', races[user.race])
 }
 
-const createEl = element => document.createElement(element)
-const getFirstEl = element => document.querySelectorAll(element)[0]
-const getXEl = (element, i) => document.querySelectorAll(element)[i]
-const appendEl = (element, element2) => element.appendChild(element2)
-
-function buildDom(get, element1, create, element2, append){
-  append(get(element1), create(element2))
-}
 
 
 
@@ -532,4 +645,4 @@ function buildDom(get, element1, create, element2, append){
 //===============================================
 //                Step 2
 //===============================================
- 
+ */
