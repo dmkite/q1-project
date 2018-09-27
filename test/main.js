@@ -1,6 +1,9 @@
-//======================
-//     Misc
-//==============================
+const dragonBreathObj = {
+    dragonBreath1:'abc',
+    dragonBreath2: 'xyz',
+    dragonBreath3: 'ret'
+}
+
 const languagesObj = {
     Common: 'The language common to all races',
     Elvish: 'The language of the Elves',
@@ -51,10 +54,6 @@ let user = {
     languages:[]
   }
 
-//=====================================
-//              Races
-//=====================================
-
 const subraces = {
     Dwarf:{
         'Hill Dwarf' : {
@@ -86,8 +85,8 @@ const subraces = {
             weapons: ['longsword', 'shortsword', 'longbow', 'shortbow']},
         spells: ['+1 cantrip'],
         language:['+1 language'],
-        choices: {languages: languagesObj,
-                    spells: cantripObj,
+        choices: {languages: [1, languagesObj],
+                    spells: [1, cantripObj],
                 }
         },
         
@@ -166,6 +165,7 @@ const races = {
             other: ["smith's tools", "brewer's supplies", "mason's tools"]},
           features: ['Darkvision'],
           languages: ['Common', 'Dwarvish'],
+          choices: [1, subraces.Dwarf]
       },
     Elf : {
         raceType: 'Elf',
@@ -182,6 +182,7 @@ const races = {
         HP: 0,
         spells:[],
         languages: ['Common', 'Elvish'],
+        choices: [1, subraces.Elf]
       },
     Halfling : {
         raceType: 'Halfling',
@@ -197,6 +198,7 @@ const races = {
         HP: 0,
         spells:[],
         languages: ['Common', 'Halfling'],
+        choices: [1, subraces.Halfling]
     } ,
     Human : {
             raceType: 'Human',
@@ -216,7 +218,7 @@ const races = {
             HP: 0,
             spells:[],
             languages: ['Common'],
-            choices: {languages: languagesObj}
+            choices: [1, {languages: languagesObj}]
     },   
     Dragonborn : {
         raceType: 'Dragon Born',
@@ -233,11 +235,7 @@ const races = {
         weapons:[],
         spells:[],
         languages: ['Common', 'Draconic'],
-        choices: {weapons: [
-            {dragonBreath1:'abc',
-            dragonBreath2: 'xyz',
-            dragonBreath3: 'ret'}
-        ]}
+        choices: [1, {weapons: dragonBreathObj}]
         /*=====Add something to specify dragon breath===== */
     },
      Gnome : {
@@ -270,9 +268,9 @@ const races = {
         spells:[],
         languages: ['Common'],
         choices: {
-            languages: languagesObj,
-            skills: [2, [skillObj]],
-            stats: [2, ['CON', 'DEX', 'STR', 'INT', 'WIS']]
+            languages: [1, languagesObj],
+            skills: [2, skillObj],
+            stats: [2, {CON: 1, DEX: 1, STR: 1, INT: 1, WIS: 1}]
         }
         /*=====add feature for choosing two ability scores to increase by 1 */
         /*====== ditto for +1 language and _2 skill proficiencies=====*/
@@ -310,30 +308,217 @@ const races = {
         languages: ['Common', 'Infernal']
     }
     }
+   
+const classes = {
+  Barbarian : {
+      classType: 'Barbarian',
+      hitDie: 12,
+      savingThrows: ['STR', 'CON'],
+      profs:{
+          armor:['light armor','medium armor','shields'],
+          weapons:['simple weapons', 'martial weapons']
+      },
+      armorType:[],
+      skillChoices:['animalHandling', 'athletics', 'intimidation', 'nature', 'perception','survival'],
+      equipment:['Great Axe', '2 Hand Axes', "explorer's pack",  '4 Javelins'],
+      features:['Unarmored Defense']
+  }
+}
+
+const backgrounds = {
+  Sailor:{
+    desc: 'sailor...',
+    skills: ['Animal Handling'],
+    equipment: ['XYZ']
+  },
+  Soldier: {
+    desc: 'soldier...',
+    skills: ['nature'],
+    equipment: ['ABC']
+  },
+  Urchin: {
+    desc: 'urchin...',
+    skills: ['perception'],
+    equipment: ['DEF']
+  }
+}
+
+//========================================================================================
+
+function addRacialData(user, race){
+  let {raceType, speed, stats, profs = null, features = null, languages} = race
+  user.race = raceType
+  user.speed = speed
+  if(profs !== null){
+    for (let profType in race.profs){
+      user.profs[profType] += race.profs[profType]
+    }
+  }
+  if(features !== null){
+    user.features.push(features)
+  }
+  for (let stat in stats){
+    user.stats[stat] += stats[stat]
+  }
+  user.languages = languages
+  return user
+}
+
+function addSubraceData(user, subrace){
+  for(let attributes in subrace){
+    switch(attributes){
+      case 'subType':
+        user.race = subrace.subType
+        break
+      case 'stats':
+        for(let statName in subrace.stats){
+          user.stats[statName] += subrace.stats[statName]
+        }
+        break
+      case 'profs':
+        for(let profType in subrace.profs){
+          user.profs[profType].push(subrace.profs[profType])
+        }
+        break
+      case 'speed':
+        user.speed = subrace.speed
+        break
+      case 'features':
+        user.features.push(subrace.features)
+        break
+      case 'spells':
+        user.spells.push(subrace.spells)
+        break
+      case 'HP':
+        user.HP += subrace.HP
+        break
+      default:
+        console.log(`forgot to account for ${attributes}`)
+    }
+  }
+  return user
+}
+
+function addClassData(user, className){
+  let {classType, hitDie, savingThrows, profs, equipment, features} = className
+  user.classType = classType
+  user.hitDie = hitDie
+  user.savingThrows = savingThrows
+  for(let profType in profs){
+    user.profs[profType].push(className.profs[profType])
+  }
+  user.equipment.push(equipment)
+  user.features.push(features)
+  return user
+}
+
+function addBackgroundData(user, background){
+  user.skills.push(background.skills)
+  user.equipment.push(background.equipment)
+  return user
+}
+
+function populateX(user, xObj){
+  let xArray = Object.keys(xObj)
+  for(let i = 0; i < xArray.length; i++){
+    buildDom(getFirstEl, '#holder', createEl, 'div', appendEl)
+    let div = document.querySelectorAll('#holder div')[i]
+    div.innerHTML = `<h3>${xArray[i]}</h3>`
+    div.classList.add('card')
+    div.appendChild(createEl('p'))
+    getXEl('p', i).innerHTML = xObj[xArray[i]].desc    
+  }
+}
+
+function select(selectedElement, obj, addDataFn){
+  let preSelection = selectedElement.firstElementChild.innerHTML
+  let selection = obj[preSelection]
+  addDataFn(user, selection)
+  selectedElement.classList.add('selected')
+  document.querySelector('input[type="button"]').addEventListener('click', 
+    function(){clearAndPopulateRaceChoices('race', races[user.race])})
+}
+
+//set up initial validation, if user click next w/ no race chosen, alert
+
+function clearAndPopulate(topic, obj){
+    console.log(user)
+    console.log(topic)
+    console.log(obj)
     
-//===============================================
-//                   Classes
-//===============================================
+  if(!user[topic] || user[topic] === {} || user[topic] === []){
+    buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
+    document.querySelector('b').innerHTML = `Whoa there, select a ${topic} before moving on`
+    return false
+  }
 
+  else{
+    document.getElementById('holder').innerHTML = ''
+    if(obj.choices){
+        for(let choiceType in obj.choices){
+            document.getElementById('holder').innerHTML += obj.choices[choiceType][1]
+        }
+    }
+    if(!obj.choices){
+        //********************************************************************Return class function!!!!!!!!!!!!!!!!!!!1
+    }
+  }
+}
 
+let clearAndPopulateRaceChoices = function(){
+    return clearAndPopulate('race', races[user.race])
+}
 
-const Barbarian = {
-    classType: 'Barbarian',
-    desc: '',
-    hitDie: 12,
-    savingThrows: ['STR', 'CON'],
-    proficiencies:{
-        armor:['light armor','medium armor','shields'],
-        weapons:['simple weapons', 'martial weapons']
-    },
-    armorType:[],
-    skillChoices:['animalHandling', 'athletics', 'intimidation', 'nature', 'perception','survival'],
-    equipmentChoices:[['Great Axe', 'otherMartialWeapon'], ['2 Hand Axes', 'otherSimpleWeapon'], "explorer's pack", '4 Javelins'],
-    features:['Unarmored Defense']
+const createEl = element => document.createElement(element)
+const getFirstEl = element => document.querySelectorAll(element)[0]
+const getXEl = (element, i) => document.querySelectorAll(element)[i]
+const appendEl = (element, element2) => element.appendChild(element2)
+
+function buildDom(get, element1, create, element2, append){
+  append(get(element1), create(element2))
 }
 
 
+
 //===============================================
-//               Background & Skills
+//                Step 1
 //===============================================
 
+//displays different race choices and descriptions
+(function (){
+    for(let i = 0; i < Object.keys(races).length; i++){
+
+        buildDom(getFirstEl, '#holder', createEl, 'div', appendEl)
+
+        let div = document.querySelectorAll('#holder div')[i]
+
+        div.innerHTML = `<h3>${races[Object.keys(races)[i]].raceType}</h3>`
+
+        div.classList.add('card')
+
+        div.appendChild(createEl('p'))
+
+        getXEl('p',i).innerHTML = races[Object.keys(races)[i]].desc
+
+        div.addEventListener('click', 
+        function(){
+            select(div, races, addRacialData)
+        })
+    }
+
+    buildDom(getFirstEl, '#holder', createEl, 'input', appendEl)
+    document.querySelector('input').value = 'next'
+    document.querySelector('input').type = 'button' 
+    document.querySelector('input').classList.add('choices')
+    
+    document.querySelector('input[type="button"').addEventListener('click', 
+        function(){
+            clearAndPopulate('race', function(){buildDom(getFirstEl, '#holder', createEl, 'b', appendEl)
+            document.querySelector('b').innerHTML = `Whoa there, select a ${topic} before moving on`})})
+    })();
+//^^^ establishes initial set up ^^^^
+
+//===============================================
+//                Step 2
+//===============================================
+ 
